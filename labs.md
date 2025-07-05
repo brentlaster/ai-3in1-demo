@@ -13,38 +13,44 @@
 
 1. We already have a script that can download and start Ollama and fetch some models we'll need in later labs. Take a look at the commands being done in the *../scripts/startOllama.sh* file. 
 ```
-cat ../scripts/startOllama.sh
+cat scripts/startOllama.sh
 ```
 
 2. Go ahead and run the script to get Ollama and start it running.
 ```
-../scripts/startOllama.sh &
+./scripts/startOllama.sh &
 ```
 
 The '&' at the end will causes the script to run in the background. You will see a set of startup messages. After those, you can just hit *Enter* to get back to a prompt in the terminal.
 
 ![starting ollama](./images/31ai6.png?raw=true "starting ollama")
 
-3. Now let's find a model to use.
-Go to https://ollama.com and in the *Search models* box at the top, enter *llama*.
-![searching for llama](./images/dga39.png?raw=true "searching for llama")
+3. Now let's find a model to use. Go to https://ollama.com and in the *Search models* box at the top, enter *llama*. In the list that pops up, choose the entry for "llama3.2".
 
-4. Click on the entry for "llama3.2" to go to the specific page about that model. Scroll down and scan the various information available about this model.
-![reading about llama3.2](./images/31ai7.png?raw=true "reading about llama3.2")
+![searching for llama](./images/31ai7.png?raw=true "searching for llama")
+
+4. This will put you on the specific page about that model. Scroll down and scan the various information available about this model.
+![reading about llama3.2](./images/31ai8.png?raw=true "reading about llama3.2")
 
 5. Switch back to a terminal in your codespace. While it's not necessary to do as a separate step, first pull the model down with ollama. (This will take a few minutes.)
+
 ```
 ollama pull llama3.2
 ```
-6. Run it with the command below.
+![pulling the model](./images/31ai9.png?raw=true "pulling the model")
+
+6. Once the model is downloaded, run it with the command below.
 ```
 ollama run llama3.2
 ```
-7. Now you can query the model by inputting text at the *>>>Send a message (/? for help)* prompt.  Let's ask it about what the weather is in Paris.
+
+7. Now you can query the model by inputting text at the *>>>Send a message (/? for help)* prompt.  Let's ask it about what the weather is in Paris. What you'll see is it telling you that it doesn't have access to current weather data and suggesting some ways to gather it yourself.
+
 ```
 What's the current weather in Paris?
 ```
-![answer to weather prompt](./images/31ai8.png?raw=true "answer to weather prompt")
+
+![answer to weather prompt and response](./images/31ai10.png?raw=true "answer to weather prompt and response")
 
 8. Now, let's try a call with the API. You can stop the current run with a Ctrl-D or switch to another terminal. Then put in the command below (or whatever simple prompt you want). 
 ```
@@ -55,9 +61,9 @@ curl http://localhost:11434/api/generate -d '{
 }'
 ```
 
-9. This will take a minute or so to run. You should see a single response object returned. You can try out some other prompts/queries if you want.
+9. This will take a minute or so to run. You should see a single response object returned with lots of data. But you can make out the text answer if you look for it. You can try out some other prompts/queries if you want.
 
-![query response](./images/31ai9.png?raw=true "Query response")
+![query response](./images/31ai11.png?raw=true "Query response")
 
 <p align="center">
 **[END OF LAB]**
