@@ -64,56 +64,58 @@ curl http://localhost:11434/api/generate -d '{
 </p>
 </br></br>
 
+**Lab 2 - Creating a simple agent**
 
-**Lab 1 - Creating a simple agent**
+**Purpose: In this lab, we’ll learn about the basics of agents and see how tools are called.**
 
-**Purpose: In this lab, we’ll learn about the basics of agents and see how tools are called. We'll also see how Chain of Thought prompting works with LLMs and how we can have ReAct agents reason and act.**
-
-1. In our repository, we have a set of Python programs that we'll be building out to work with concepts in the labs. These are mostly in the *agents* subdirectory. Go to the *TERMINAL* tab in the bottom part of your codespace and change into that directory.
-```
-cd agents
-```
-
-2. For this lab, we have the outline of an agent in a file called *agent1.py* in that directory. You can take a look at the code either by clicking on [**agents/agent1.py**](./agents/agent1.py) or by entering the command below in the codespace's terminal.
+1. As we saw in Lab 1, our model doesn't have access to real-time weather information. Let's create a simple agent to help with this task. For this lab, we have the outline of an agent in a file called *agent.py* in the *genai* directory. You can take a look at the code either by clicking on [**agent.py**](./agent.py) or by entering the command below in the codespace's terminal.
    
 ```
-code agent1.py
+code agent.py
 ```
 
-3. As you can see, this outlines the steps the agent will go through without all the code. When you are done looking at it, close the file by clicking on the "X" in the tab at the top of the file.
+![Starting agent](./images/31ai10.png?raw=true "Starting agent") 
 
-4. Now, let's fill in the code. To keep things simple and avoid formatting/typing frustration, we already have the code in another file that we can merge into this one. Run the command below in the terminal.
+2. As you can see, this outlines the steps the agent will go through without all the code. When you are done looking at it, close the file by clicking on the "X" in the tab at the top of the file.
+
+3. Now, let's fill in the code. To keep things simple and avoid formatting/typing frustration, we already have the code in another file that we can merge into this one. Run the command below in the terminal.
+   
 ```
-code -d ../extra/lab1-code.txt agent1.py
-```
-
-5. Once you have run the command, you'll have a side-by-side in your editor of the completed code and the agent1.py file.
-  You can merge each section of code into the agent1.py file by hovering over the middle bar and clicking on the arrows pointing right. Go through each section, look at the code, and then click to merge the changes in, one at a time.
-
-![Side-by-side merge](./images/aa40.png?raw=true "Side-by-side merge") 
-
-6. When you have finished merging all the sections in, the files should show no differences. Save the changes simply by clicking on the "X" in the tab name.
-
-![Merge complete](./images/aa41.png?raw=true "Merge complete") 
-
-7. Now you can run your agent with the following command:
-
-```
-python agent1.py
+code -d ../extra/lab2-code.txt agent.py
 ```
 
-8. The agent will start running and will prompt for a location (or "exit" to finish). At the prompt, you can type in a location like "Paris, France" or "London" or "Raleigh" and hit *Enter*. After that you'll be able to see the Thought -> Action -> Observation loop in practice as each one is listed out. You'll also see the arguments being passed to the tools as they are called. Finally you should see a human-friendly message from the AI summarizing the weather forecast.
+4. Once you have run the command, you'll have a side-by-side in your editor of the completed code and the agent.py file.
+  You can merge each section of code into the agent.py file by hovering over the middle bar and clicking on the arrows pointing right. Go through each section, look at the code, and then click to merge the changes in, one at a time.
 
-![Agent run](./images/aa42.png?raw=true "Agent run") 
+![Side-by-side merge](./images/31ai11.png?raw=true "Side-by-side merge") 
 
-9. You can then input another location and run the agent again or exit. Note that if you get a timeout error, the API may be limiting the number of accesses in a short period of time. You can usually just try again and it will work.
+5. When you have finished merging all the sections in, the files should show no differences. Save the changes simply by clicking on the "X" in the tab name.
 
+![Merge complete](./images/31ai12.png?raw=true "Merge complete") 
+
+6. Now you can run your agent with the following command:
+
+```
+python agent.py
+```
+
+7. At the prompt, you can enter a weather-related query. Start by asking it the same query you gave directly to the model earlier - about the current weather.
+
+![Running agent](./images/31ai13.png?raw=true "Running agent") 
+   
+8. You'll see some of the messages from the model loading. Then, eventually, you should see a section showing the call to the function, the return value from the function, and the final answer from the run.
+
+![Agent output](./images/gaidd80.png?raw=true "Agent output") 
+
+9. Notice that the location supplied in the user query was converted into an appropriate latitude and longitude for the tool call by the LLM. Then the output of the tool run was converted to a user-friendly weather report as the final answer.
+
+(Optional) If you get done early and want to play around, you can try another current weather query or even asking it a more general weather question. If you don't seem to get a response after the function is called, it may be due to the API limiting. Ctrl-C to cancel the run, wait a moment, and try again.
 <p align="center">
 **[END OF LAB]**
 </p>
 </br></br>
 
-**Lab 2 - Exploring MCP**
+**Lab 3 - Exploring MCP**
 
 **Purpose: In this lab, we’ll see how MCP can be used to standardize an agent's interaction with tools.**
 
@@ -142,7 +144,7 @@ python mcp_server.py
 5. In the second terminal, run a diff command so we can build out the new agent.
 
 ```
-code -d ../extra/lab2-code.txt mcp_agent.py
+code -d ../extra/lab3-code.txt agent_with_mcp.py
 ```
 
 6. Review and merge the changes as before. What we're highlighting in this step are the *System Prompt* that drives the LLM used by the agent, the connection with the MCP client at the /mcp/ endpoint (line 55), and the mpc calls to the tools on the server. When finished, close the tab to save the changes as before.
@@ -166,78 +168,53 @@ python mcp_agent.py
 </p>
 </br></br>
 
-**Lab 3 - Leveraging Coding Agents and Memory**
+**Lab 4 - Working with Vector Databases**
 
-**Purpose: In this lab, we’ll see how agents can drive solutions via creating code and implement simple memory techniques using the smolagents framework.**
+**Purpose: In this lab, we’ll learn about how to use vector databases for storing supporting data and doing similarity searches.**
 
-1. For this lab, we have a simple application that does currency conversion using prompts of the form "Convert 100 USD to EUR", where *USD* = US dollars and *EUR* = euros.  It will also remember previous values and invocations.
-
-
-2. As before, we'll use the "view differences and merge" technique to learn about the code we'll be working with. The command to run this time is below:
+1. In our repository, we have a simple program built around a popular vector database called Chroma. The file name is vectordb.py. Open the file either by clicking on [**genai/vectordb.py**](./genai/vectordb.py) or by entering the command below in the codespace's terminal.
 
 ```
-code -d ../extra/curr_conv_agent.txt curr_conv_agent.py
-```
-</br></br>
-
-![Code for memory agent](./images/aa68.png?raw=true "Code for memory agent") 
-
-3. The code in this application showcases several SmolAgents features and agent techniques including the following. See how many you can identify as your reviewing the code.
-
-- **@tool decorator** turns your Python functions into callable “tools” for the agent.  
-- **LiteLLMModel** plugs in your local Ollama llama3.2 as the agent’s reasoning engine.  
-- **CodeAgent** runs a ReAct loop: think (LLM), act (call tool), observe, repeat.  
-- **Controlled toolset** (`add_base_tools=False`) limits the agent to only your defined tools.  
-- **Deterministic output** (`temperature=0.0`) ensures consistent tool selection and results.  
-- **Tool chaining** lets the agent fetch live rates, then compute conversions in sequence.  
-- **Memory feature** remembers current values and persists them (with history) to an external JSON file.  
-
-
-4. When you're done merging, close the tab as usual to save your changes. Now, in a terminal, run the agent with the command below:
-
-```
-python curr_conv_agent.py
+code vectordb.py
 ```
 
-5. Enter a basic prompt like the one below.
+2. For purposes of not having to load a lot of data and documents, we've *seeded* the same data strings in the file that we're loosely referring to as *documents*. These can be seen in the *datadocs* section of the file.
+![data docs](./images/gaidd47.png?raw=true "Data docs")
 
+3. Likewise, we've added the metadata again for categories for the data items. These can be seen in the *categories* section.
+![data categories](./images/gaidd48.png?raw=true "Data categories")
+
+4. Go ahead and run this program using the command shown below. This will take the document strings, create embeddings and vectors for them in the Chroma database section and then wait for us to enter a query.
 ```
-Convert 100 USD to EUR
+python vectordb.py
 ```
+![waiting for input](./images/gaidd49.png?raw=true "Waiting for input")
 
-6. The agent will run for a while and not return as the LLM loads and the processing happens. When it is finished with this run, you'll see output like the screenshot below. Notice that since we used the SmolAgents CodeAgent type, you can see the code it created and executed in the black box. **NOTE: This initial run will take several minutes!**
-
-![Running agent](./images/aa69.png?raw=true "Running agent")   
-
-7. Now you can try some partial inputs with missing values to demonstrate the agent remembering arguments that were passed to it before. Here are some to try. Output is shown in the screenshot. (You may see some intermediate steps. You're looking for the one with "Final answer" in it.)
-
+5. You can enter a query here about any topic and the vector database functionality will try to find the most similar matching data that it has. Since we've only given it a set of 10 strings to work from, the results may not be relevant or very good, but represent the best similarity match the system could find based on the query. Go ahead and enter a query. Some sample ones are shown below, but you can choose others if you want. Just remember it will only be able to choose from the data we gave it. The output will show the closest match from the doc strings and also the similarity and category.
 ```
-Convert 200
-Convert 400 to JPY
+Tell me about food.
+Who is the most famous person?
+How can I learn better?
 ```
+![query results](./images/gaidd50.png?raw=true "Query results")
 
-![Running with partial inputs](./images/aa70.png?raw=true "Running agent")  
-![Running with partial inputs](./images/aa71.png?raw=true "Running agent")   
+6. After you've entered and run your query, you can add another one or just type *exit* to stop.
 
+7. Now, let's update the number of results that are returned so we can query on multiple topics. In the file *vectordb.py*, change line 70 to say *n_results=3,* instead of *n_results=1,*. Make sure to save your changes afterwards.
 
-8. To see the stored history information on disk, type "exit" to exit the tool. Then in the terminal type the command below to see the contents of the file.
+![changed number of results](./images/gaidd51.png?raw=true "Changed number of results")
 
+8. Run the program again with *python vectordb.py*. Now you can try more complex queries or try multiple queries (separated by commas). 
+
+![multiple queries](./images/gaidd52.png?raw=true "Multiple queries")
+ 
+9. When done querying the data, if you have more time, you can try modifying or adding to the document strings in the file, then save your changes and run the program again with queries more in-line with the data you provided. You can type in "exit" for the query to end the program.
+
+10. In preparation for the next lab, remove the *llava* model and download the *llama3.2* model.
 ```
-cat currency_memory.json
+ollama rm llava
+ollama pull llama3.2
 ```
-
-![Running with partial inputs](./images/aa72.png?raw=true "Running agent") 
-
-9. Finally, you can start the agent again and enter "history" at the prompt to see the persisted history from before. Then you can try a query and it should pick up as before. In the example, we used the query below:
-
-```
-convert 300
-```
-
-![Running with partial inputs](./images/aa73.png?raw=true "Running agent")   
-
-
-10.  Just type "exit" when ready to quit the tool.
 
 <p align="center">
 **[END OF LAB]**
@@ -245,7 +222,7 @@ convert 300
 </br></br>
 
     
-**Lab 4 - Using RAG with Agents**
+**Lab 5 - Using RAG with Agents**
 
 **Purpose: In this lab, we’ll explore how agents can leverage external data stores via RAG**
 
