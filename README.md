@@ -1,6 +1,6 @@
-# ATO Meetup: 3-in-1 - Agents, RAG and Local Models
+# AI 3-in-1: Agents, RAG and Local Models
 
-Building out an AI agent that uses RAG and runs locally
+## Building out an AI agent that uses RAG and runs locally ##
 
 These instructions will guide you through configuring a GitHub Codespaces environment that you can use to run the code if you want. 
 
