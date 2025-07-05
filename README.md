@@ -1,32 +1,26 @@
 # ATO Meetup: 3-in-1 - Agents, RAG and Local Models
 
-Repository for ATO Meetup Examples
+Building out an AI agent that uses RAG and runs locally
 
 These instructions will guide you through configuring a GitHub Codespaces environment that you can use to run the code if you want. 
 
-**1. If you want to have your own copy of this repository, you can fork it into your GitHub area via the **Fork** option at the top right.**
+**1. Click on the button below to start a new codespace from this repository.**
 
-![Forking repository](./images/3in1d.png?raw=true "Forking repository")
-
-<br><br>
-
-**2. Click on the button below to start a new codespace from this repository.**
-
-Click here ➡️  [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/brentlaster/3in1?quickstart=1)
+Click here ➡️  [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/skillrepos/ai-3in1?quickstart=1)
 
 <br><br>
 
-**3. Then click on the option to create a new codespace.**
+**2. Then click on the option to create a new codespace.**
 
-![Creating new codespace from button](./images/3in1a.png?raw=true "Creating new codespace from button")
+![Creating new codespace from button](./images/31ai1.png?raw=true "Creating new codespace from button")
 
 This will run for a long time (10 or more minutes) while it gets everything ready.
 
-After the initial startup, it will run a script to setup the python environment, install needed python pieces, install Ollama, and then download the models we will use. This will take several more minutes to run. It will look like this while this is running.
+After the initial startup, it will run a script to setup the python environment and install needed python pieces. This will take several more minutes to run. It will look like this while this is running.
 
-![Final prep](./images/3in1b.png?raw=true "Final prep")
+![Final prep](./images/31ai2.png?raw=true "Final prep")
 
 The codespace is ready to use when you see a prompt like the one shown below in its terminal.
 
-![Ready to use](./images/3in1c.png?raw=true "Ready to use")
+![Ready to use](./images/31ai3.png?raw=true "Ready to use")
 
