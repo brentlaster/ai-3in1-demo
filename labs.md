@@ -1,7 +1,7 @@
 # AI 3-in-1: Agents, RAG and Local Models
 ## Building out an AI agent that uses RAG and runs locally
 ## Session labs 
-## Revision 3.5 - 06/30/25
+## Revision 3.6 - 07/05/25
 
 **Follow the startup instructions in the README.md file IF NOT ALREADY DONE!**
 
@@ -72,50 +72,47 @@ curl http://localhost:11434/api/generate -d '{
 
 **Lab 2 - Creating a simple agent**
 
-**Purpose: In this lab, we’ll learn about the basics of agents and see how tools are called.**
+**Purpose: In this lab, we’ll learn about the basics of agents and see how tools are called. We'll also see how Chain of Thought prompting works with LLMs and how we can have ReAct agents reason and act.**
 
-1. As we saw in Lab 1, our model doesn't have access to real-time weather information. Let's create a simple agent to help with this task. For this lab, we have the outline of an agent in a file called *agent.py* in the *genai* directory. You can take a look at the code either by clicking on [**agent.py**](./agent.py) or by entering the command below in the codespace's terminal.
+1. In our repository, we have a set of Python programs that we'll be building out to work with concepts in the labs. These are mostly in the *agents* subdirectory. Go to the *TERMINAL* tab in the bottom part of your codespace and change into that directory.
+```
+cd agents
+```
+
+2. For this lab, we have the outline of an agent in a file called *agent1.py* in that directory. You can take a look at the code either by clicking on [**agents/agent1.py**](./agents/agent1.py) or by entering the command below in the codespace's terminal.
    
 ```
-code agent.py
+code agent1.py
 ```
 
-![Browsing code](./images/31ai12.png?raw=true "Browsing code") 
+3. As you can see, this outlines the steps the agent will go through without all the code. When you are done looking at it, close the file by clicking on the "X" in the tab at the top of the file.
 
-2. As you can see, this outlines the steps the agent will go through without all the code. When you are done looking at it, close the file by clicking on the "X" in the tab at the top of the file.
-
-3. Now, let's fill in the code. To keep things simple and avoid formatting/typing frustration, we already have the code in another file that we can merge into this one. Run the command below in the terminal.
-   
+4. Now, let's fill in the code. To keep things simple and avoid formatting/typing frustration, we already have the code in another file that we can merge into this one. Run the command below in the terminal.
 ```
-code -d extra/lab2-code.txt agent.py
+code -d ../extra/lab2-code.txt agent.py
 ```
 
-4. Once you have run the command, you'll have a side-by-side in your editor of the completed code and the agent.py file.
-  You can merge each section of code into the agent.py file by hovering over the middle bar and clicking on the arrows pointing right. Go through each section, look at the code, and then click to merge the changes in, one at a time.
+5. Once you have run the command, you'll have a side-by-side in your editor of the completed code and the agent1.py file.
+  You can merge each section of code into the agent1.py file by hovering over the middle bar and clicking on the arrows pointing right. Go through each section, look at the code, and then click to merge the changes in, one at a time.
 
-![Side-by-side merge](./images/31ai13.png?raw=true "Side-by-side merge") 
+![Side-by-side merge](./images/aa40.png?raw=true "Side-by-side merge") 
 
-5. When you have finished merging all the sections in, the files should show no differences. Save the changes simply by clicking on the "X" in the tab name.
+6. When you have finished merging all the sections in, the files should show no differences. Save the changes simply by clicking on the "X" in the tab name.
 
-![Merge complete](./images/31ai14.png?raw=true "Merge complete") 
+![Merge complete](./images/aa41.png?raw=true "Merge complete") 
 
-6. Now you can run your agent with the following command:
+7. Now you can run your agent with the following command:
 
 ```
-python agent.py
+python agent1.py
 ```
 
-7. At the prompt, you can enter a weather-related query. Start by asking it the same query you gave directly to the model earlier - about the current weather.
+8. The agent will start running and will prompt for a location (or "exit" to finish). At the prompt, you can type in a location like "Paris, France" or "London" or "Raleigh" and hit *Enter*. After that you'll be able to see the Thought -> Action -> Observation loop in practice as each one is listed out. You'll also see the arguments being passed to the tools as they are called. Finally you should see a human-friendly message from the AI summarizing the weather forecast.
 
-![Running agent](./images/31ai15.png?raw=true "Running agent") 
-   
-8. You'll see some of the messages from the model loading. Then, eventually, you should see a section showing the call to the function, the return value from the function, and the final answer from the run.
+![Agent run](./images/aa42.png?raw=true "Agent run") 
 
-![Agent output](./images/31ai16.png?raw=true "Agent output") 
+9. You can then input another location and run the agent again or exit. Note that if you get a timeout error, the API may be limiting the number of accesses in a short period of time. You can usually just try again and it will work.
 
-9. Notice that the location supplied in the user query was converted into an appropriate latitude and longitude for the tool call by the LLM. Then the output of the tool run was converted to a user-friendly weather report as the final answer.
-
-(Optional) If you get done early and want to play around, you can try another current weather query or even asking it a more general weather question. If you don't seem to get a response after the function is called, it may be due to the API limiting. Ctrl-C to cancel the run, wait a moment, and try again.
 <p align="center">
 **[END OF LAB]**
 </p>
@@ -150,7 +147,7 @@ python mcp_server.py
 5. In the second terminal, run a diff command so we can build out the new agent.
 
 ```
-code -d ../extra/lab3-code.txt agent_with_mcp.py
+code -d ../extra/lab2-code.txt mcp_agent.py
 ```
 
 6. Review and merge the changes as before. What we're highlighting in this step are the *System Prompt* that drives the LLM used by the agent, the connection with the MCP client at the /mcp/ endpoint (line 55), and the mpc calls to the tools on the server. When finished, close the tab to save the changes as before.
