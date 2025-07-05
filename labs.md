@@ -80,24 +80,24 @@ curl http://localhost:11434/api/generate -d '{
 code agent.py
 ```
 
-![Starting agent](./images/31ai10.png?raw=true "Starting agent") 
+![Browsing code](./images/31ai12.png?raw=true "Browsing code") 
 
 2. As you can see, this outlines the steps the agent will go through without all the code. When you are done looking at it, close the file by clicking on the "X" in the tab at the top of the file.
 
 3. Now, let's fill in the code. To keep things simple and avoid formatting/typing frustration, we already have the code in another file that we can merge into this one. Run the command below in the terminal.
    
 ```
-code -d ../extra/lab2-code.txt agent.py
+code -d extra/lab2-code.txt agent.py
 ```
 
 4. Once you have run the command, you'll have a side-by-side in your editor of the completed code and the agent.py file.
   You can merge each section of code into the agent.py file by hovering over the middle bar and clicking on the arrows pointing right. Go through each section, look at the code, and then click to merge the changes in, one at a time.
 
-![Side-by-side merge](./images/31ai11.png?raw=true "Side-by-side merge") 
+![Side-by-side merge](./images/31ai13.png?raw=true "Side-by-side merge") 
 
 5. When you have finished merging all the sections in, the files should show no differences. Save the changes simply by clicking on the "X" in the tab name.
 
-![Merge complete](./images/31ai12.png?raw=true "Merge complete") 
+![Merge complete](./images/31ai14.png?raw=true "Merge complete") 
 
 6. Now you can run your agent with the following command:
 
@@ -107,11 +107,11 @@ python agent.py
 
 7. At the prompt, you can enter a weather-related query. Start by asking it the same query you gave directly to the model earlier - about the current weather.
 
-![Running agent](./images/31ai13.png?raw=true "Running agent") 
+![Running agent](./images/31ai15.png?raw=true "Running agent") 
    
 8. You'll see some of the messages from the model loading. Then, eventually, you should see a section showing the call to the function, the return value from the function, and the final answer from the run.
 
-![Agent output](./images/gaidd80.png?raw=true "Agent output") 
+![Agent output](./images/31ai16.png?raw=true "Agent output") 
 
 9. Notice that the location supplied in the user query was converted into an appropriate latitude and longitude for the tool call by the LLM. Then the output of the tool run was converted to a user-friendly weather report as the final answer.
 
