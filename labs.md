@@ -74,36 +74,31 @@ curl http://localhost:11434/api/generate -d '{
 
 **Purpose: In this lab, we’ll learn about the basics of agents and see how tools are called. We'll also see how Chain of Thought prompting works with LLMs and how we can have ReAct agents reason and act.**
 
-1. In our repository, we have a set of Python programs that we'll be building out to work with concepts in the labs. These are mostly in the *agents* subdirectory. Go to the *TERMINAL* tab in the bottom part of your codespace and change into that directory.
-```
-cd agents
-```
-
-2. For this lab, we have the outline of an agent in a file called *agent.py* in that directory. You can take a look at the code either by clicking on [**agent.py**](./agent.py) or by entering the command below in the codespace's terminal.
+1. For this lab, we have the outline of an agent in a file called *agent.py* in that directory. You can take a look at the code either by clicking on [**agent.py**](./agent.py) or by entering the command below in the codespace's terminal.
    
 ```
 code agent.py
 ```
 ![starting agent code](./images/31ai12.png?raw=true "Starting agent code")
 
-3. As you can see, this outlines the steps the agent will go through without all the code. When you are done looking at it, close the file by clicking on the "X" in the tab at the top of the file.
+2. As you can see, this outlines the steps the agent will go through without all the code. When you are done looking at it, close the file by clicking on the "X" in the tab at the top of the file.
 
-4. Now, let's fill in the code. To keep things simple and avoid formatting/typing frustration, we already have the code in another file that we can merge into this one. Run the command below in the terminal.
+3. Now, let's fill in the code. To keep things simple and avoid formatting/typing frustration, we already have the code in another file that we can merge into this one. Run the command below in the terminal.
 
 ```
-code -d ../extra/lab2-code.txt agent.py
+code -d extra/lab2-agent.txt agent.py
 ```
 
-5. Once you have run the command, you'll have a side-by-side in your editor of the completed code and the agent1.py file.
+4. Once you have run the command, you'll have a side-by-side in your editor of the completed code and the agent1.py file.
   You can merge each section of code into the agent1.py file by hovering over the middle bar and clicking on the arrows pointing right. Go through each section, look at the code, and then click to merge the changes in, one at a time.
 
 ![Side-by-side merge](./images/31ai13.png?raw=true "Side-by-side merge") 
 
-6. When you have finished merging all the sections in, the files should show no differences. Save the changes simply by clicking on the "X" in the tab name.
+5. When you have finished merging all the sections in, the files should show no differences. Save the changes simply by clicking on the "X" in the tab name.
 
 ![Merge complete](./images/31ai14.png?raw=true "Merge complete") 
 
-7. Now you can run your agent with the following command:
+6. Now you can run your agent with the following command:
 
 ```
 python agent1.py
@@ -111,11 +106,11 @@ python agent1.py
 
 ![Running the agent](./images/31ai15.png?raw=true "Running the agent")
 
-8. The agent will start running and will prompt for a location (or "exit" to finish). At the prompt, you can type in a location like "Paris, France" or "London" or "Raleigh" and hit *Enter*. After that you'll be able to see the Thought -> Action -> Observation loop in practice as each one is listed out. You'll also see the arguments being passed to the tools as they are called. Finally you should see a human-friendly message from the AI summarizing the weather forecast.
+7. The agent will start running and will prompt for a location (or "exit" to finish). At the prompt, you can type in a location like "Paris, France" or "London" or "Raleigh" and hit *Enter*. After that you'll be able to see the Thought -> Action -> Observation loop in practice as each one is listed out. You'll also see the arguments being passed to the tools as they are called. Finally you should see a human-friendly message from the AI summarizing the weather forecast.
 
 ![Agent run](./images/31ai16.png?raw=true "Agent run") 
 
-9. You can then input another location and run the agent again or exit. Note that if you get a timeout error, the API may be limiting the number of accesses in a short period of time. You can usually just try again and it will work.
+8. You can then input another location and run the agent again or exit. Note that if you get a timeout error, the API may be limiting the number of accesses in a short period of time. You can usually just try again and it will work.
 
 <p align="center">
 **[END OF LAB]**
