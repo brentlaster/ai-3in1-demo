@@ -2,7 +2,7 @@
 
 ## Building out an AI agent that uses RAG and runs locally ##
 
-These instructions will guide you through configuring a GitHub Codespaces environment that you can use to run the code if you want. 
+These instructions will guide you through configuring a GitHub Codespaces environment that you can use to do the labs. 
 
 **1. Click on the button below to start a new codespace from this repository.**
 
