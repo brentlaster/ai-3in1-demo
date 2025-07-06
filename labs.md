@@ -240,9 +240,8 @@ python tools/index_pdf.py
 
 ```
 python tools/search.py
-```
-<br>
-```
+
+Queries:
 Corporate Operations office
 Seaside cities
 Tech Development sites
