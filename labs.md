@@ -1,7 +1,7 @@
 # AI 3-in-1: Agents, RAG and Local Models
 ## Building out an AI agent that uses RAG and runs locally
 ## Session labs 
-## Revision 3.10 - 07/06/25
+## Revision 2.0 - 07/06/25
 
 **Follow the startup instructions in the README.md file IF NOT ALREADY DONE!**
 
@@ -300,6 +300,29 @@ Tell me about the Southern office
 ![Running the RAG agent](./images/31a29.png?raw=true "Running the RAG agent") 
 
 7. After the initial run, you can try prompts about other offices or cities mentioned in the PDF. Type *exit* when done.
+
+8. While this works, it could be more informative and user-friendly. Let's change the prompt and directions to the LLM to have it add an additional fact about the city where the office is located and include that and the weather in a more user-friendly response. To see and make the changes you can do the usual diff and merge using the command below.
+
+```
+code -d extra/lab5-agent-2.txt rag_agent.py
+```
+<br>
+![Updating the RAG agent](./images/31a30.png?raw=true "Updating the RAG agent") 
+
+9. Once you've finished the merge, you can run the new agent code the same way again.
+
+```
+python agent_rag.py
+```
+
+10. Now, you can try the same queries as before and you should get more user-friendly answers.
+
+```
+Tell me about HQ
+Tell me about the Southern office
+```
+<br>
+![Running the updated RAG agent](./images/31a31.png?raw=true "Running the updated RAG agent") 
 
 <p align="center">
 **[END OF LAB]**
