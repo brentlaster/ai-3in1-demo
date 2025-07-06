@@ -1,7 +1,7 @@
 # AI 3-in-1: Agents, RAG and Local Models
 ## Building out an AI agent that uses RAG and runs locally
 ## Session labs 
-## Revision 3.9 - 07/06/25
+## Revision 3.10 - 07/06/25
 
 **Follow the startup instructions in the README.md file IF NOT ALREADY DONE!**
 
@@ -11,14 +11,14 @@
 
 **Purpose: In this lab, we’ll start getting familiar with Ollama, a way to run models locally.**
 
-1. We already have a script that can download and start Ollama and fetch some models we'll need in later labs. Take a look at the commands being done in the *../scripts/startOllama.sh* file. 
+1. We already have a script that can download and start Ollama and fetch some models we'll need in later labs. Take a look at the commands being done in the [**scripts/startOllama.sh**](./scripts/startOllama.sh) file. 
 ```
 cat scripts/startOllama.sh
 ```
 
 2. Go ahead and run the script to get Ollama and start it running.
 ```
-./scripts/startOllama.sh &
+scripts/startOllama.sh &
 ```
 
 The '&' at the end will causes the script to run in the background. You will see a set of startup messages. After those, you can just hit *Enter* to get back to a prompt in the terminal.
