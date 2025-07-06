@@ -101,12 +101,12 @@ code -d extra/lab2-agent.txt agent.py
 6. Now you can run your agent with the following command:
 
 ```
-python agent1.py
+python agent.py
 ```
 
 ![Running the agent](./images/31ai15.png?raw=true "Running the agent")
 
-7. The agent will start running and will prompt for a location (or "exit" to finish). At the prompt, you can type in a location like "Paris, France" or "London" or "Raleigh" and hit *Enter*. After that you'll be able to see the Thought -> Action -> Observation loop in practice as each one is listed out. You'll also see the arguments being passed to the tools as they are called. Finally you should see a human-friendly message from the AI summarizing the weather forecast.
+7. The agent will start running and will prompt for a location (or "exit" to finish). At the prompt, you can type in a location like "Paris, France" or "London" or "Raleigh" and hit *Enter*. You'll see lots of activity while the model is loaded. After that you'll be able to see the Thought -> Action -> Observation loop in practice as each one is listed out. You'll also see the arguments being passed to the tools as they are called. Finally you should see a human-friendly message summarizing the weather forecast.
 
 ![Agent run](./images/31ai16.png?raw=true "Agent run") 
 

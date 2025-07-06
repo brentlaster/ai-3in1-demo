@@ -3,3 +3,4 @@ chromadb
 pdfplumber
 sentence_transformers
 requests
+langchain_ollama
