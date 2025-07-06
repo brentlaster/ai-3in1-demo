@@ -1,0 +1,219 @@
+#!/usr/bin/env python3
+# rag_client.py — Office-aware weather agent
+#
+# 1. Vector-searches the “codebase” Chroma collection for office metadata.
+# 2. Extracts either:
+#       • explicit latitude / longitude in the text, or
+#       • a place name (“City, ST”, “City, Country”, or best-guess city word).
+# 3. If only a place name is found, geocodes it through Open-Meteo’s free API
+#    (retrying with simpler forms if needed).
+# 4. Calls the local MCP tools:
+#       get_weather(lat, lon)   convert_c_to_f(celsius)
+# 5. Prints a human-readable weather summary.
+#
+# Requirements
+#   pip install sentence-transformers chromadb fastmcp requests tiktoken
+
+import asyncio
+import re
+from pathlib import Path
+from typing import List, Optional, Tuple
+
+import requests
+import chromadb
+from chromadb.config import Settings, DEFAULT_TENANT, DEFAULT_DATABASE
+from sentence_transformers import SentenceTransformer
+from fastmcp import Client
+from fastmcp.exceptions import ToolError
+
+# ───────────────────────── configuration ──────────────────────────
+CHROMA_PATH      = Path("./chroma_db")
+COLLECTION_NAME  = "codebase"
+EMBED_MODEL_NAME = "all-MiniLM-L6-v2"
+
+MCP_ENDPOINT     = "http://127.0.0.1:8000/mcp/"
+TOP_K            = 5
+
+# Co-ordinate pattern, city patterns
+COORD_RE        = re.compile(r"\b(-?\d{1,2}(?:\.\d+)?)[,\s]+(-?\d{1,3}(?:\.\d+)?)\b")
+CITY_STATE_RE   = re.compile(r"\b([A-Z][a-z]+(?: [A-Z][a-z]+)*),\s*([A-Z]{2})\b")     # Austin, TX
+CITY_COUNTRY_RE = re.compile(r"\b([A-Z][a-z]+(?: [A-Z][a-z]+)*),\s*([A-Z][a-z]{2,})\b")  # Paris, France
+CITY_RE         = re.compile(r"\b([A-Z][a-z]+(?: [A-Z][a-z]+)*)\b")                    # fallback
+
+STOPWORDS = {"office", "hq", "center", "centre"}
+
+# ───────────────────────── vector search ──────────────────────────
+def open_collection() -> chromadb.Collection:
+    client = chromadb.PersistentClient(
+        path=str(CHROMA_PATH),
+        settings=Settings(),
+        tenant=DEFAULT_TENANT,
+        database=DEFAULT_DATABASE,
+    )
+    return client.get_or_create_collection(COLLECTION_NAME)
+
+
+def rag_search(query: str,
+               model: SentenceTransformer,
+               coll: chromadb.Collection) -> List[str]:
+    q_emb = model.encode(query).tolist()
+    res = coll.query(
+        query_embeddings=[q_emb],
+        n_results=TOP_K,
+        include=["documents"],
+    )
+    return res["documents"][0] if res["documents"] else []
+
+# ───────────────────────── extraction helpers ─────────────────────
+def find_coords(texts: List[str]) -> Optional[Tuple[float, float]]:
+    """Return the first valid lat/lon pair in any text."""
+    for txt in texts:
+        for m in COORD_RE.finditer(txt):
+            lat, lon = map(float, m.groups())
+            if -90 <= lat <= 90 and -180 <= lon <= 180:
+                return lat, lon
+    return None
+
+
+def find_city_state(texts: List[str]) -> Optional[str]:
+    """Return 'City, ST' if found."""
+    for txt in texts:
+        m = CITY_STATE_RE.search(txt)
+        if m:
+            return m.group(0)
+    return None
+
+
+def find_city_country(texts: List[str]) -> Optional[str]:
+    """Return 'City, Country' if found."""
+    for txt in texts:
+        m = CITY_COUNTRY_RE.search(txt)
+        if m:
+            return m.group(0)
+    return None
+
+
+def guess_city(texts: List[str]) -> Optional[str]:
+    """
+    Fallback: first capitalised token >2 chars, ignoring stop-words like 'Office'.
+    """
+    for txt in texts:
+        for m in CITY_RE.finditer(txt):
+            token = m.group(1).strip()
+            last  = token.split()[-1].lower()
+            if len(token) > 2 and last not in STOPWORDS:
+                return token
+    return None
+
+
+def geocode(name: str) -> Optional[Tuple[float, float]]:
+    """
+    Query Open-Meteo geocoding API.
+    First try the full string; if no result and the string contains a comma,
+    retry with the part before the comma.
+    """
+    url = "https://geocoding-api.open-meteo.com/v1/search"
+
+    def _lookup(n: str):
+        try:
+            r = requests.get(url, params={"name": n, "count": 1}, timeout=10)
+            r.raise_for_status()
+            data = r.json()
+            if data.get("results"):
+                res = data["results"][0]
+                return res["latitude"], res["longitude"]
+        except Exception:
+            pass
+        return None
+
+    coords = _lookup(name)
+    if coords:
+        return coords
+    if "," in name:
+        return _lookup(name.split(",", 1)[0].strip())
+    return None
+
+# ───────────────────────── unwrap helper ──────────────────────────
+def unwrap(obj):
+    """
+    Convert fastmcp.CallToolResult or nested content into plain Python.
+    Handles .structured_content, .data, single-element lists, and
+    dicts that contain exactly one numeric value.
+    """
+    if hasattr(obj, "structured_content") and obj.structured_content:
+        return unwrap(obj.structured_content)
+    if hasattr(obj, "data") and obj.data:
+        return unwrap(obj.data)
+    if isinstance(obj, list) and len(obj) == 1:
+        return unwrap(obj[0])
+    if isinstance(obj, dict):
+        numeric_vals = [v for v in obj.values() if isinstance(v, (int, float))]
+        if len(numeric_vals) == 1:
+            return numeric_vals[0]
+    return obj
+
+# ───────────────────────── main workflow ──────────────────────────
+async def run(prompt: str) -> None:
+    embed_model = SentenceTransformer(EMBED_MODEL_NAME)
+    coll        = open_collection()
+
+    rag_hits = rag_search(prompt, embed_model, coll)
+    top_hit  = rag_hits[0] if rag_hits else ""
+    if top_hit:
+        print("\nTop RAG hit:\n", top_hit, "\n")
+
+    # 1. explicit coordinates?
+    coords = find_coords([top_hit, prompt])
+
+    # 2. otherwise, derive city and geocode
+    if not coords:
+        city_str = (
+            find_city_state([top_hit, prompt])
+            or find_city_country([top_hit, prompt])
+            or guess_city([top_hit, prompt])
+        )
+        if city_str:
+            print(f"No coords found; geocoding '{city_str}'.")
+            coords = geocode(city_str)
+
+    if not coords:
+        print("Could not determine latitude/longitude.\n")
+        return
+
+    lat, lon = coords
+    print(f"Using coordinates: {lat:.4f}, {lon:.4f}\n")
+
+    # 3. call MCP tools
+    async with Client(MCP_ENDPOINT) as mcp:
+        try:
+            w_raw = await mcp.call_tool("get_weather", {"lat": lat, "lon": lon})
+        except ToolError as e:
+            print(f"Error calling get_weather: {e}")
+            return
+
+        weather = unwrap(w_raw)
+        if not isinstance(weather, dict):
+            print(f"Unexpected get_weather result: {weather}")
+            return
+
+        temp_c = weather.get("temperature")
+        cond   = weather.get("conditions", "Unknown")
+
+        try:
+            tf_raw = await mcp.call_tool("convert_c_to_f", {"c": temp_c})
+            temp_f = float(unwrap(tf_raw))
+        except (ToolError, ValueError) as e:
+            print(f"Temperature conversion failed: {e}")
+            return
+
+    print(f"Weather: {cond}, {temp_f:.1f} °F\n")
+
+# ───────────────────────── command-line loop ───────────────────────
+if __name__ == "__main__":
+    print("Office-aware weather agent. Type 'exit' to quit.\n")
+    while True:
+        prompt = input("Prompt: ").strip()
+        if prompt.lower() == "exit":
+            break
+        if prompt:
+            asyncio.run(run(prompt))
