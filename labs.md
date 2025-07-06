@@ -192,49 +192,63 @@ What is the weather in New York?
 
 **Purpose: In this lab, we’ll learn about how to use vector databases for storing supporting data and doing similarity searches.**
 
-1. In our repository, we have a simple program built around a popular vector database called Chroma. The file name is vectordb.py. Open the file either by clicking on [**genai/vectordb.py**](./genai/vectordb.py) or by entering the command below in the codespace's terminal.
+1. For this lab and the next one, we have a data file that we'll be usihg that contains a list of office information and details for a ficticious company. The file is in [**data/offices.pdf**](./data/offices.pdf). You can use the link to open it and take a look at it.
+
+![PDF data file](./images/31ai23.png?raw=true "PDF data file") 
+
+2. In our repository, we have some simple tools built around a popular vector database called Chroma. There are two files which will create a vector db (index) for the *.py files in our repo and another to do the same for the office pdf. You can look at the files either via the usual "code <filename>" method or clicking on [**tools/index_code.py**](./tools/index_code.py) or [**tools/index_pdf.py**](./tools/index_pdf.py).
 
 ```
-code vectordb.py
+code tools/index_code.py
+code tools/index_pdf.py
 ```
 
-2. For purposes of not having to load a lot of data and documents, we've *seeded* the same data strings in the file that we're loosely referring to as *documents*. These can be seen in the *datadocs* section of the file.
-![data docs](./images/gaidd47.png?raw=true "Data docs")
+3. Let's create a vector database of our local python files. Run the program to index those as below. You'll see the program loading the embedding model that will turn the code chunks into numeric represenations in the vector database and then it will read and index our *.py files.
 
-3. Likewise, we've added the metadata again for categories for the data items. These can be seen in the *categories* section.
-![data categories](./images/gaidd48.png?raw=true "Data categories")
-
-4. Go ahead and run this program using the command shown below. This will take the document strings, create embeddings and vectors for them in the Chroma database section and then wait for us to enter a query.
 ```
-python vectordb.py
+python tools/index_code.py
 ```
-![waiting for input](./images/gaidd49.png?raw=true "Waiting for input")
 
-5. You can enter a query here about any topic and the vector database functionality will try to find the most similar matching data that it has. Since we've only given it a set of 10 strings to work from, the results may not be relevant or very good, but represent the best similarity match the system could find based on the query. Go ahead and enter a query. Some sample ones are shown below, but you can choose others if you want. Just remember it will only be able to choose from the data we gave it. The output will show the closest match from the doc strings and also the similarity and category.
+![Running code indexer](./images/31ai24.png?raw=true "Running code indexer")
+
+4. To help us do easy/simple searches against our vector databases, we have another tool at [**tools/search.py**](./tools/search.py). This tool connects to the ChromaDB vector database we create, and, using cosine similarity metrics, find the top "hits" (matching chunks) and prints them out. You can open it and look at the code in the usual way if you want.
+
+5. Now, let's run the search tool against the vector database we built in step 3. You can prompt it to ask a coding question like any of the ones shown below. When done, just type "exit".
+
 ```
-Tell me about food.
-Who is the most famous person?
-How can I learn better?
+python tools/search.py
 ```
-![query results](./images/gaidd50.png?raw=true "Query results")
-
-6. After you've entered and run your query, you can add another one or just type *exit* to stop.
-
-7. Now, let's update the number of results that are returned so we can query on multiple topics. In the file *vectordb.py*, change line 70 to say *n_results=3,* instead of *n_results=1,*. Make sure to save your changes afterwards.
-
-![changed number of results](./images/gaidd51.png?raw=true "Changed number of results")
-
-8. Run the program again with *python vectordb.py*. Now you can try more complex queries or try multiple queries (separated by commas). 
-
-![multiple queries](./images/gaidd52.png?raw=true "Multiple queries")
- 
-9. When done querying the data, if you have more time, you can try modifying or adding to the document strings in the file, then save your changes and run the program again with queries more in-line with the data you provided. You can type in "exit" for the query to end the program.
-
-10. In preparation for the next lab, remove the *llava* model and download the *llama3.2* model.
+<br>
 ```
-ollama rm llava
-ollama pull llama3.2
+What imports are used?
+Where do we do computations?
+Where do print things out?
 ```
+
+![Running search](./images/31ai25.png?raw=true "Running search")
+
+6.  Now, let's recreate our vector database based off of the PDF file. Just run the indexer for the pdf file.
+
+```
+python tools/index_pdf.py
+```
+
+![Indexing PDF](./images/31ai26.png?raw=true "Indexing PDF")
+
+7. Now, we can run the same search tool to find the top hits for information about offices. Below are some prompts you can try here. Note that in some of them, we're using keywords only found in the PDF document. When done, just type "exit".
+
+```
+python tools/search.py
+```
+<br>
+```
+Tell me about HQ
+What data do you have on the Southern office
+Give me info about the ofice in Paris
+```
+
+8. Keep in mind that this is not trying to intelligently answer your prompts at this point. This is a simple semantic search to find related chunks. In lab 5, we'll add in the LLM to give us better responses. In preparation for that lab, make sure that indexing for the PDF is the last one you ran and not the indexing for the Python files.
+
 
 <p align="center">
 **[END OF LAB]**
