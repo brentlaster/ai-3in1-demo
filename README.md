@@ -12,7 +12,7 @@ Click here ➡️  [![Open in GitHub Codespaces](https://github.com/codespaces/b
 
 ![Creating new codespace from button](./images/31ai1.png?raw=true "Creating new codespace from button")
 
-This will run for a long time (10 or more minutes) while it gets everything ready.
+This will run for a long time while it gets everything ready.
 
 After the initial startup, it will run a script to setup the python environment and install needed python pieces. This will take several more minutes to run. It will look like this while this is running.
 
