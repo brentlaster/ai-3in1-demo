@@ -1,7 +1,7 @@
 # AI 3-in-1: Agents, RAG and Local Models
 ## Building out an AI agent that uses RAG and runs locally
 ## Session labs 
-## Revision 3.8 - 07/06/25
+## Revision 3.9 - 07/06/25
 
 **Follow the startup instructions in the README.md file IF NOT ALREADY DONE!**
 
@@ -258,157 +258,49 @@ Give me info about the ofice in Paris
     
 **Lab 5 - Using RAG with Agents**
 
-**Purpose: In this lab, we’ll explore how agents can leverage external data stores via RAG**
+**Purpose: In this lab, we’ll explore how agents can leverage external data stores via RAG and tie in our previous tool use.**
 
-1. For this lab, we have an application that does the following:
+1. For this lab, we're going to combine our previous agent that looks up weather with RAG to get information about offices based on a prompt and tell us what the weather is like for that locaion.
 
-- Reads, processes, and stores information about company offices from a PDF file
-- Lets you input a starting location
-- Lets you prompt about a destination location such as an office name
-- Maps the destination back to data taken from the PDF if it can
-- Uses the destination from the PDF data or from the prompt to  
-  - Find and provide 3 interesting facts about the destination
-  - Calculate distance from the starting location to the destination
-- Stores information about starting location in an external file
-- Repeats until user enters *exit*
-
-2. The PDF file we're using to illustrate RAG here is a fictional list of offices and related info for a company. You can see it in the repo at  [**data/offices.pdf**](./data/offices.pdf) 
-
-![Data pdf](./images/aa66.png?raw=true "Data pdf") 
-
-
-3. As before, we'll use the "view differences and merge" technique to learn about the code we'll be working with. The command to run this time is below. The code differences mainly hightlight the changes for RAG use in the agent, including working with vector database and snippets returned from searching it.
+2. As before, we'll use the "view differences and merge" technique to learn about the code we'll be working with. The command to run this time is below. There are a number of helper functions in this code that are useful to understand. Take some time to look at each section as you merge them in.
    
 ```
-code -d ../extra/rag_agent.txt rag_agent.py
+code -d ../extra/lab5-agent.txt rag_agent.py
 ```
 </br></br>
 
-![Code for rag agent](./images/aa65.png?raw=true "Code for rag agent") 
+![Code for rag agent](./images/31a27.png?raw=true "Code for rag agent") 
 
 
-4. When you're done merging, close the tab as usual to save your changes. Now, in a terminal, run the agent with the command below:
+3. When you're done merging, close the tab as usual to save your changes. Now, in a terminal, start the MCP server running again:
+
+```
+python mcp_server.py
+```
+
+4. In a separate terminal, start the new agent running.
 
 ```
 python rag_agent.py
 ```
 
-5. You'll see the agent loading up the embedding pieces it needs to store the document in the vector database. After that you can choose to override the default starting location, or leave it on the default. You'll see a *User:* prompt when it is ready for input from you. The agent is geared around you entering a prompt about an office. Try a prompt like one of the ones below about office "names" that are only in the PDF.
+5. You'll see a *User:* prompt when it is ready for input from you. The agent is geared around you entering a prompt about an office. Try a prompt like one of the ones below about office "names" that are only in the PDF.
 
 ```
 Tell me about HQ
 Tell me about the Southern office
 ```
 
-6. What you should see after that are some messages that show internal processing, such as the retrieved items from the RAG datastore.  Then the agent will run through the necessary steps like geocoding locations, calculating distance, using the LLM to get interesting facts about the city etc. At the end it will print out facts about the office location, and the city the office is in, as well as the distance to the office.
+6. What you should see after that are some messages that show internal processing, such as the retrieved items from the RAG datastore.  Then the agent will run through the necessary steps like parsing the query to find a location, getting the coordinates for the location, getting the weather etc. At the end it will print out an answer to your prompt and the weather determined from the tool.
  
-![Running the RAG agent](./images/aa67.png?raw=true "Running the RAG agent") 
+![Running the RAG agent](./images/31a28.png?raw=true "Running the RAG agent") 
 
-7. The stored information about startup location is in a file named *user_starting_location.json* in the same directory if you want to view that.
-
-8. After the initial run, you can try prompts about other offices or cities mentioned in the PDF. Type *exit* when done.
+7. After the initial run, you can try prompts about other offices or cities mentioned in the PDF. Type *exit* when done.
 
 <p align="center">
 **[END OF LAB]**
 </p>
 </br></br>
-
-**Lab 5 - Working with multiple agents**
-
-**Purpose: In this lab, we’ll see how to add an agent to a workflow using CrewAI.**
-
-1. As we've done before, we'll build out the agent code with the diff/merge facility. Run the command below.
-```
-code -d ../extra/lab5-code.txt agent5.py
-```
-
-![Diffs](./images/aa23.png?raw=true "Diffs") 
-
-2. In the *agent5.py* template, we have the imports and llm setup at the top filled in, along with a simulated function to book a flight. Scroll to the bottom. At the bottom is the input and code to kick off the "*crew*". So, we need to fill in the different tasks and setup the crew.
-
-3. Scroll back to the top, review each change and then merge each one in. Notice the occurrences of "*booking_agent*". This is all being done with a single agent in the crew currently. When done, the files should show no differences. Click on the "X" in the tab at the top to save your changes to *agent5.py*.
-
-![Merge complete](./images/aa24.png?raw=true "Merge complete") 
-
-4. Now you can run the agent and see the larger workflow being handled. There will be quite a bit of output so this may take a while to run. **NOTE: Even though the agent may prompt for human input to select a flight, none is needed. We're not adding that in and using fake info to keep things simple and quick.**
-
-```
-python agent5.py
-```
-
-![Execution](./images/aa31.png?raw=true "Execution") 
-
-5. Now, that we know how the code works and that it works, let's consider the overall approach. Since there are multiple functions going on here (getting info, finding flights, booking flights) it doesn't necessarily make sense to have just one agent doing all those things. Let's add two other agents - a *travel agent* to help with finding flights, and a customer_service_agent to help with user interactions. To start, replace the single *booking agent* definition with these definitions for the 3 agents (making sure to get the indenting correct):
-
-**Directions:** Copy the block of replacement text in gray below and paste over the single agent definition in the code. Reminder - you may need to use keyboard shortcuts to copy and paste. The screenshots are only to show you before and after - they are not what you copy.
-
-```
-# Defines the AI agents
-
-booking_agent = Agent(
-    role="Airline Booking Assistant",
-    goal="Help users book flights efficiently.",
-    backstory="You are an expert airline booking assistant, providing the best booking options with clear information.",
-    verbose=True,
-    llm=ollama_llm,
-)
-
-# New agent for travel planning tasks
-travel_agent = Agent(
-    role="Travel Assistant",
-    goal="Assist in planning and organizing travel details.",
-    backstory="You are skilled at planning and organizing travel itineraries efficiently.",
-    verbose=True,
-    llm=ollama_llm,
-)
-
-# New agent for customer service tasks
-customer_service_agent = Agent(
-    role="Customer Service Representative",
-    goal="Provide excellent customer service by handling user requests and presenting options.",
-    backstory="You are skilled at providing customer support and ensuring user satisfaction.",
-    verbose=True,
-    llm=ollama_llm,
-)
-```
-![Text to replace](./images/aa26.png?raw=true "Text to replace") 
-
-![Replaced text](./images/aa27.png?raw=true "Replaced text")
-
-6. Next, we'll change each *task definition* to reflect which agent should own it. The places to make the change are in the task definitions in the lines that start with "*agent=*". Just edit each one as needed per the mapping in the table below.
-
-| **Task** | *Agent* | 
-| :--------- | :-------- | 
-| **extract_travel_info_task** |  *customer_service_agent*  |        
-| **find_flights_task** |  *travel_agent*  |  
-| **present_flights_task** |  *customer_service_agent*  |  
-| **book_flight_task** | *booking_agent* (ok as-is) |  
-         
-![Replaced text](./images/aa28.png?raw=true "Replaced text")
-
-7. Finally, we need to add the new agents to our crew. Edit the "*agents=[*" line in the block under the comment "*# Create the crew*". In that line, add *customer_service_agent* and *travel_agent*. The full line is below. The screenshot shows the changes made.
-
-```
-agents=[booking_agent, customer_service_agent, travel_agent],
-```
-
-![Replaced text](./images/aa29.png?raw=true "Replaced text")
-
-8. Now you can save your changes and then run the program again.
-
-```
-python agent5.py
-```
-
-9. This time when the code runs, you should see the different agents being used in the processing.
-
-![Run with new agents](./images/aa30.png?raw=true "Run with new agents")
-
-<p align="center">
-**[END OF LAB]**
-</p>
-</br></br>
- 
 
 <p align="center">
 **THANKS!**
