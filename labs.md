@@ -164,13 +164,13 @@ code -d extra/lab3-agent.txt mcp_agent.py
 
 ![Agent using MCP client code](./images/31ai21.png?raw=true "Agent using MCP client code") 
    
-7. After you've made and saved the changes, you can run the client in the terminal with the command below.
+8. After you've made and saved the changes, you can run the client in the terminal with the command below.
 
 ```
 python mcp_agent.py
 ```
 
-8. The agent should start up, and wait for you to prompt it about weather in a location. You'll be able to see similar TAO output. And you'll also be able to see the server INFO messages in the other terminal as the MCP connections and events happen. A suggested prompt is below.
+9. The agent should start up, and wait for you to prompt it about weather in a location. You'll be able to see similar TAO output. And you'll also be able to see the server INFO messages in the other terminal as the MCP connections and events happen. A suggested prompt is below.
 
 ```
 What is the weather in New York?
@@ -178,7 +178,7 @@ What is the weather in New York?
 
 ![Agent using MCP client running](./images/31ai22.png?raw=true "Agent using MCP client running") 
 
-9. When you're done, you can use 'exit' to stop the client and CTRL-C to stop the server. 
+10. When you're done, you can use 'exit' to stop the client and CTRL-C to stop the server. 
 
 <p align="center">
 **[END OF LAB]**
