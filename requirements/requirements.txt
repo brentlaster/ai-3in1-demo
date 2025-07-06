@@ -5,3 +5,4 @@ sentence_transformers
 requests
 langchain_ollama
 fastmcp
+tiktoken

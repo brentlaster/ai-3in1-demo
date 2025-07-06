@@ -208,18 +208,22 @@ python tools/index_code.py
 
 ![Running code indexer](./images/31ai24.png?raw=true "Running code indexer")
 
-4. To help us do easy/simple searches against our vector databases, we have another tool at [**tools/search.py**](./tools/search.py). This tool connects to the ChromaDB vector database we create, and, using cosine similarity metrics, find the top "hits" (matching chunks) and prints them out. You can open it and look at the code in the usual way if you want.
+4. To help us do easy/simple searches against our vector databases, we have another tool at [**tools/search.py**](./tools/search.py). This tool connects to the ChromaDB vector database we create, and, using cosine similarity metrics, finds the top "hits" (matching chunks) and prints them out. You can open it and look at the code in the usual way if you want. No changes are needed to the code.
 
-5. Now, let's run the search tool against the vector database we built in step 3. You can prompt it to ask a coding question like any of the ones shown below. When done, just type "exit".
+```
+code tools/search.py
+```
+
+5. Now, let's run the search tool against the vector database we built in step 3. You can prompt it with phrases related to our coding like any of the ones shown below. When done, just type "exit".  Notice the top hits and their respective cosine similarity values. Are they close? Farther apart?
 
 ```
 python tools/search.py
 ```
 <br>
 ```
-What imports are used?
-Where do we do computations?
-Where do print things out?
+convert celsius to farenheit fastmcp tools
+embed model sentence-transformers
+async with Client mcp
 ```
 
 ![Running search](./images/31ai25.png?raw=true "Running search")
@@ -232,17 +236,20 @@ python tools/index_pdf.py
 
 ![Indexing PDF](./images/31ai26.png?raw=true "Indexing PDF")
 
-7. Now, we can run the same search tool to find the top hits for information about offices. Below are some prompts you can try here. Note that in some of them, we're using keywords only found in the PDF document. When done, just type "exit".
+7. Now, we can run the same search tool to find the top hits for information about offices. Below are some prompts you can try here. Note that in some of them, we're using keywords only found in the PDF document. Notice the cosine similarity values on each - are they close? Farther apart?  When done, just type "exit".
 
 ```
 python tools/search.py
 ```
 <br>
 ```
-Tell me about HQ
-What data do you have on the Southern office
-Give me info about the ofice in Paris
+Corporate Operations office
+Seaside cities
+Tech Development sites
+High revenue branch
 ```
+<br>
+![PDF search](./images/31ai27.png?raw=true "PDF search")
 
 8. Keep in mind that this is not trying to intelligently answer your prompts at this point. This is a simple semantic search to find related chunks. In lab 5, we'll add in the LLM to give us better responses. In preparation for that lab, make sure that indexing for the PDF is the last one you ran and not the indexing for the Python files.
 
