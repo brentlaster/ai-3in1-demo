@@ -273,7 +273,7 @@ code -d extra/lab5-agent.txt rag_agent.py
 ```
 </br></br>
 
-![Code for rag agent](./images/31a28.png?raw=true "Code for rag agent") 
+![Code for rag agent](./images/31ai28.png?raw=true "Code for rag agent") 
 
 
 3. When you're done merging, close the tab as usual to save your changes. Now, in a terminal, start the MCP server running again:
@@ -297,7 +297,7 @@ Tell me about the Southern office
 
 6. What you should see after that are some messages that show internal processing, such as the retrieved items from the RAG datastore.  Then the agent will run through the necessary steps like parsing the query to find a location, getting the coordinates for the location, getting the weather etc. At the end it will print out an answer to your prompt and the weather determined from the tool.
  
-![Running the RAG agent](./images/31a29.png?raw=true "Running the RAG agent") 
+![Running the RAG agent](./images/31ai29.png?raw=true "Running the RAG agent") 
 
 7. After the initial run, you can try prompts about other offices or cities mentioned in the PDF. Type *exit* when done.
 
@@ -307,7 +307,7 @@ Tell me about the Southern office
 code -d extra/lab5-agent-2.txt rag_agent.py
 ```
 <br>
-![Updating the RAG agent](./images/31a30.png?raw=true "Updating the RAG agent") 
+![Updating the RAG agent](./images/31ai30.png?raw=true "Updating the RAG agent") 
 
 9. Once you've finished the merge, you can run the new agent code the same way again.
 
@@ -322,7 +322,7 @@ Tell me about HQ
 Tell me about the Southern office
 ```
 <br>
-![Running the updated RAG agent](./images/31a31.png?raw=true "Running the updated RAG agent") 
+![Running the updated RAG agent](./images/31ai31.png?raw=true "Running the updated RAG agent") 
 
 <p align="center">
 **[END OF LAB]**
