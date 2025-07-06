@@ -1,23 +1,43 @@
 #!/usr/bin/env python3
-# weather_server.py — returns temperature **and** conditions
-#
-# Added robustness:
-#   • get_weather() now retries the Open-Meteo call up to MAX_RETRIES times
-#     with exponential back-off if it hits a network error or 429/5xx status.
-#   • The retry logic keeps the overall behaviour identical for normal cases,
-#     but shields the agent from transient API-quota failures.
+"""
+weather_server.py
+────────────────────────────────────────────────────────────────────────
+A *minimal* FastMCP server that exposes two JSON-RPC tools:
+
+    1. get_weather(lat, lon)  → dict with °C, WMO code, description
+    2. convert_c_to_f(c)      → float (°F)
+
+Key design points
+-----------------
+* **Retry logic**: get_weather will automatically retry the upstream
+  Open-Meteo call up to three total attempts (initial + 2 retries) on
+  quota (429) or transient (5xx) errors, waiting 1.5 s, then 2.25 s.
+* **No custom FastMCP options**: we rely on the *default* HTTP transport,
+  which means clients must send the usual three headers:
+
+      Content-Type: application/json
+      Accept:       application/json, text/event-stream
+      X-Session-Id: <any value>
+
+  Official FastMCP clients add these automatically.
+"""
 
 from __future__ import annotations
 
+# ── stdlib ──────────────────────────────────────────────────────────
 import time
 from typing import Final
 
+# ── 3rd-party ───────────────────────────────────────────────────────
 import requests
-from fastmcp import FastMCP
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+from fastmcp import FastMCP
 
-# ───────────────────────── weather-code → description ─────────────────────
+# ╔══════════════════════════════════════════════════════════════════╗
+# 1.  Weather-code ➜ human-readable description lookup table         ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# Open-Meteo returns the same “WMO weathercode” integers many APIs use.
 WEATHER_CODES: Final[dict[int, str]] = {
     0:  "Clear sky",                     1:  "Mainly clear",
     2:  "Partly cloudy",                 3:  "Overcast",
@@ -35,35 +55,52 @@ WEATHER_CODES: Final[dict[int, str]] = {
     96: "Thunderstorm with slight hail", 99: "Thunderstorm with heavy hail",
 }
 
-# ───────────────────── retry-aware requests Session ──────────────────────
-MAX_RETRIES      = 3      # total attempts (initial + 2 retries)
-BACKOFF_FACTOR   = 1.5    # exponential delay multiplier (1.5s, 2.25s, …)
-STATUS_RETRY_SET = {429, 500, 502, 503, 504}
+# ╔══════════════════════════════════════════════════════════════════╗
+# 2.  Build a requests.Session with automatic retries                ║
+# ╚══════════════════════════════════════════════════════════════════╝
+MAX_RETRIES    = 3       # total attempts = 1 original + 2 retries
+BACKOFF_FACTOR = 1.5     # 1.5 s, then 2.25 s, …
+TRANSIENT_CODES = {429, 500, 502, 503, 504}
 
-retry_strategy = Retry(
-    total=MAX_RETRIES - 1,                # urllib3 counts *retries*, not attempts
-    backoff_factor=BACKOFF_FACTOR,
-    status_forcelist=list(STATUS_RETRY_SET),
+retry_cfg = Retry(
+    total=MAX_RETRIES - 1,          # urllib3 counts *retries*
+    backoff_factor=BACKOFF_FACTOR,  # exponential delay
+    status_forcelist=list(TRANSIENT_CODES),
     allowed_methods=["GET"],
-    raise_on_status=False,                # we'll raise manually after retries
+    raise_on_status=False,          # we raise manually after inspecting code
 )
 
 session = requests.Session()
-session.mount("https://", HTTPAdapter(max_retries=retry_strategy))
+session.mount("https://", HTTPAdapter(max_retries=retry_cfg))
 
-# ──────────────────────── instantiate MCP server ─────────────────────────
+# ╔══════════════════════════════════════════════════════════════════╗
+# 3.  Instantiate FastMCP and define tool functions                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
 mcp = FastMCP("WeatherServer")
 
-# ───────────────────────────── tools ─────────────────────────────────────
 @mcp.tool
 def get_weather(lat: float, lon: float) -> dict:
     """
-    Current conditions via Open-Meteo, resilient to transient quota errors.
+    Fetch **current weather** from Open-Meteo and return a concise dict.
 
+    Retry policy
+    ------------
+    * Up to MAX_RETRIES total attempts.
+    * Retries on network errors **or** HTTP 429/5xx.
+    * Exponential back-off (1.5 s, 2.25 s, …).
+
+    Parameters
+    ----------
+    lat, lon : float
+        Geographic coordinates in decimal degrees.
+
+    Returns
+    -------
+    dict
         {
-            "temperature": °C,
-            "code":        int,   # Open-Meteo weathercode
-            "conditions":  str    # human-readable description
+            "temperature": <float °C>,
+            "code":        <int WMO weathercode>,
+            "conditions":  <friendly description>
         }
     """
     url = (
@@ -74,9 +111,12 @@ def get_weather(lat: float, lon: float) -> dict:
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             resp = session.get(url, timeout=15)
-            if resp.status_code in STATUS_RETRY_SET:
-                raise requests.HTTPError(f"{resp.status_code} from Open-Meteo")
+
+            if resp.status_code in TRANSIENT_CODES:
+                # Force a retry for quota / backend errors
+                raise requests.HTTPError(resp.status_code)
             resp.raise_for_status()
+
             cw = resp.json()["current_weather"]
             code = cw["weathercode"]
             return {
@@ -84,22 +124,24 @@ def get_weather(lat: float, lon: float) -> dict:
                 "code":        code,
                 "conditions":  WEATHER_CODES.get(code, "Unknown"),
             }
-        except (requests.RequestException, KeyError, ValueError) as exc:
-            # Only retry on transient issues; permanent failures break early.
+
+        except (requests.RequestException, KeyError, ValueError):
+            # Re-raise on final attempt, otherwise wait and retry
             if attempt == MAX_RETRIES:
                 raise
-            sleep_seconds = BACKOFF_FACTOR ** (attempt - 1)
-            time.sleep(sleep_seconds)
-            continue  # next retry
+            time.sleep(BACKOFF_FACTOR ** (attempt - 1))
 
 @mcp.tool
 def convert_c_to_f(c: float) -> float:
-    """Convert Celsius to Fahrenheit."""
+    """Simple Celsius → Fahrenheit conversion."""
     return c * 9 / 5 + 32
 
-# ─────────────────────────── run server ────────────────────────────
+# ╔══════════════════════════════════════════════════════════════════╗
+# 4.  Start the FastMCP HTTP server                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
 if __name__ == "__main__":
-    # JSON-RPC on /mcp/  (streaming also auto-published on /streamable-http)
+    # `transport="http"` uses FastAPI + Uvicorn under the hood
+    # Endpoint: POST http://127.0.0.1:8000/mcp/
     mcp.run(
         transport="http",
         host="127.0.0.1",
