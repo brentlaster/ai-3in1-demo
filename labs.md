@@ -129,7 +129,7 @@ python agent1.py
 1. Still in the *agents* directory, we have partial implementations of an MCP server and an agent that uses a MCP client to connect to tools on the server. So that you can get acquainted with the main parts of each, we'll build them out as we did the agent in the first lab - by viewing differences and merging. Let's start with the server. Run the command below to see the differences.
 
 ```
-code -d ../extra/lab2-server.txt mcp_server.py
+code -d ../extra/lab3-server.txt mcp_server.py
 ```
 </br></br>
 ![MCP server code](./images/aa43.png?raw=true "MCP server code") 
