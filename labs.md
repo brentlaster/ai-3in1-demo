@@ -139,7 +139,11 @@ python mcp_server.py
 </br></br>
 ![MCP server start](./images/31ai18.png?raw=true "MCP server start") 
 
-4. We also have a small tool that can call the MCP discover method to find the list of tools from our server. This is just for demo purposes.  You can take a look at the code either by clicking on [**tools/discover_tools.py**](./tools/discover_tools.py) or by entering the first command below in the codespace's terminal. The actual code here is minimal. It connects to our server and invokes the list_tools method. Run it with the second command below and you should see the list of tools like in the screenshot.
+4. Since this terminal is now tied up with the running server, we need to have a second terminal to use to work with the client. So that we can see the server responses, let's just open another terminal side-by-side with this one. To do that, right-click in the current terminal and select *Split Terminal* from the pop-up context menu. Then click into that terminal to do the steps for the rest of the lab.
+
+![Opening a second terminal](./images/31ai20.png?raw=true "Opening a second terminal") 
+
+5. We also have a small tool that can call the MCP *discover* method to find the list of tools from our server. This is just for demo purposes. You can take a look at the code either by clicking on [**tools/discover_tools.py**](./tools/discover_tools.py) or by entering the first command below in the codespace's terminal. The actual code here is minimal. It connects to our server and invokes the list_tools method. Run it with the second command below and you should see the list of tools like in the screenshot.
 
 ```
 code tools/discover_tools.py
@@ -148,14 +152,12 @@ python tools/discover_tools.py
 
 ![Discovering tools](./images/31ai19.png?raw=true "Discovering tools") 
    
-5. Now, let's turn our attention to the agent that will use the MCP server through an MCP client interface. First, since the terminal is tied up with the running server, we need to have a second terminal to use to work with the client. So that we can see the server responses, let's just open another terminal side-by-side with this one. To do that, right-click in the current terminal and select *Split Terminal* from the pop-up context menu.
 
-![Opening a second terminal](./images/31ai20.png?raw=true "Opening a second terminal") 
 
-6. In the second terminal, run a diff command so we can build out the new agent.
+6. Now, let's turn our attention to the agent that will use the MCP server through an MCP client interface. First, in the second terminal, run a diff command so we can build out the new agent.
 
 ```
-code -d ../extra/lab3-code.txt mcp_agent.py
+code -d extra/lab3-agent.txt mcp_agent.py
 ```
 
 7. Review and merge the changes as before. What we're highlighting in this step are the *System Prompt* that drives the LLM used by the agent, the connection with the MCP client at the /mcp/ endpoint, and the mpc calls to the tools on the server. When finished, close the tab to save the changes as before.
