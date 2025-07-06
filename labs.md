@@ -1,7 +1,7 @@
 # AI 3-in-1: Agents, RAG and Local Models
 ## Building out an AI agent that uses RAG and runs locally
 ## Session labs 
-## Revision 3.7 - 07/06/25
+## Revision 3.8 - 07/06/25
 
 **Follow the startup instructions in the README.md file IF NOT ALREADY DONE!**
 
@@ -126,13 +126,13 @@ python agent1.py
 
 **Purpose: In this lab, we’ll see how MCP can be used to standardize an agent's interaction with tools.**
 
-1. Still in the *agents* directory, we have partial implementations of an MCP server and an agent that uses a MCP client to connect to tools on the server. So that you can get acquainted with the main parts of each, we'll build them out as we did the agent in the first lab - by viewing differences and merging. Let's start with the server. Run the command below to see the differences.
+1. We have partial implementations of an MCP server and an agent that uses a MCP client to connect to tools on the server. So that you can get acquainted with the main parts of each, we'll build them out as we did the agent in the first lab - by viewing differences and merging. Let's start with the server. Run the command below to see the differences.
 
 ```
 code -d ../extra/lab3-server.txt mcp_server.py
 ```
 </br></br>
-![MCP server code](./images/aa43.png?raw=true "MCP server code") 
+![MCP server code](./images/31ai17.png?raw=true "MCP server code") 
 
 2. As you look at the differences, note that we are using FastMCP to more easily set up a server, with its @mcp.tool decorators to designate our functions as MCP tools. Also, we run this using the *streamable-http* transport protocol. Review each difference to see what is being done, then use the arrows to merge. When finished, click the "x"" in the tab at the top to close and save the files.
 
@@ -142,21 +142,30 @@ code -d ../extra/lab3-server.txt mcp_server.py
 python mcp_server.py
 ```
 </br></br>
-![MCP server start](./images/aa44.png?raw=true "MCP server start") 
+![MCP server start](./images/31ai18.png?raw=true "MCP server start") 
 
-4. Now, let's turn our attention to the agent that will use the MCP server through an MCP client interface. First, since the terminal is tied up with the running server, we need to have a second terminal to use to work with the client. So that we can see the server responses, let's just open another terminal side-by-side with this one. To do that, right-click in the current terminal and select *Split Terminal* from the pop-up context menu.
-
-![Opening a second terminal](./images/aa45.png?raw=true "Opening a second terminal") 
-
-5. In the second terminal, run a diff command so we can build out the new agent.
+4. We also have a small tool that can call the MCP discover method to find the list of tools from our server. This is just for demo purposes.  You can take a look at the code either by clicking on [**tools/discover_tools.py**](./tools/discover_tools.py) or by entering the first command below in the codespace's terminal. The actual code here is minimal. It connects to our server and invokes the list_tools method. Run it with the second command below and you should see the list of tools like in the screenshot.
 
 ```
-code -d ../extra/lab2-code.txt mcp_agent.py
+code tools/discover_tools.py
+python tools/discover_tools.py
 ```
 
-6. Review and merge the changes as before. What we're highlighting in this step are the *System Prompt* that drives the LLM used by the agent, the connection with the MCP client at the /mcp/ endpoint (line 55), and the mpc calls to the tools on the server. When finished, close the tab to save the changes as before.
+![Discovering tools](./images/31ai19.png?raw=true "Discovering tools") 
+   
+5. Now, let's turn our attention to the agent that will use the MCP server through an MCP client interface. First, since the terminal is tied up with the running server, we need to have a second terminal to use to work with the client. So that we can see the server responses, let's just open another terminal side-by-side with this one. To do that, right-click in the current terminal and select *Split Terminal* from the pop-up context menu.
 
-![Agent using MCP client code](./images/aa75.png?raw=true "Agent using MCP client code") 
+![Opening a second terminal](./images/31ai20.png?raw=true "Opening a second terminal") 
+
+6. In the second terminal, run a diff command so we can build out the new agent.
+
+```
+code -d ../extra/lab3-code.txt mcp_agent.py
+```
+
+7. Review and merge the changes as before. What we're highlighting in this step are the *System Prompt* that drives the LLM used by the agent, the connection with the MCP client at the /mcp/ endpoint, and the mpc calls to the tools on the server. When finished, close the tab to save the changes as before.
+
+![Agent using MCP client code](./images/31ai21.png?raw=true "Agent using MCP client code") 
    
 7. After you've made and saved the changes, you can run the client in the terminal with the command below.
 
@@ -164,9 +173,13 @@ code -d ../extra/lab2-code.txt mcp_agent.py
 python mcp_agent.py
 ```
 
-8. The agent should start up, and, as in lab 1, prompt you for a location. You'll be able to see similar TAO output. And you'll also be able to see the server INFO messages in the other terminal as the MCP connections and events happen.
+8. The agent should start up, and wait for you to prompt it about weather in a location. You'll be able to see similar TAO output. And you'll also be able to see the server INFO messages in the other terminal as the MCP connections and events happen. A suggested prompt is below.
 
-![Agent using MCP client running](./images/aa76.png?raw=true "Agent using MCP client running") 
+```
+What is the weather in New York?
+```
+
+![Agent using MCP client running](./images/31ai22.png?raw=true "Agent using MCP client running") 
 
 9. When you're done, you can use 'exit' to stop the client and CTRL-C to stop the server. 
 
