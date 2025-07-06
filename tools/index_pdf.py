@@ -1,111 +1,141 @@
-#!/usr/bin/env python3
-# index_pdfs.py — line-level PDF indexing into a fresh ChromaDB
-#
-# Workflow
-# ──────────────────────────────────────────────────────────────────────
-#   1. Remove any existing ./chroma_db so each run starts with a clean DB.
-#   2. Find every *.pdf inside ./data.
-#   3. Extract non-blank lines from each page using pdfplumber.
-#   4. Embed every line with the “all-MiniLM-L6-v2” Sentence-BERT model.
-#   5. Store the embeddings, the raw line text, and metadata (path + line
-#      index) in a persistent Chroma collection called “codebase”.
-#
-# After the script finishes you will have a brand-new vector database at
-# ./chroma_db that can be queried by the companion search script.
 
+#!/usr/bin/env python3
+"""
+index_pdfs.py
+────────────────────────────────────────────────────────────────────
+Create a **fresh** ChromaDB vector-index from the contents of every PDF
+inside `./data/`, embedding **each non-blank line** with the
+*all-MiniLM-L6-v2* Sentence-BERT model.
+
+High-level flow
+---------------
+1. **Reset DB** – delete any existing `./chroma_db/` folder so we never mix
+   embeddings from previous runs.
+2. **Collect PDFs** – scan `./data/*.pdf`.
+3. **Extract lines** – use *pdfplumber* to pull plain text from each page,
+   split on newlines, drop blank lines.
+4. **Embed** – convert each line to a 384-dimensional vector
+   (MiniLM-L6-v2).
+5. **Store** – write `(vector, raw line, metadata)` into a persistent
+   Chroma collection called `"codebase"`.
+
+After it finishes you can query the vectors with any Chroma-compatible
+client or the companion RAG script.
+"""
+
+# ───────────────────── standard-library imports ────────────────────
 import shutil
 import re
 from pathlib import Path
 from typing import List
 
-import pdfplumber                              # pip install pdfplumber
+# ───────────────────── 3rd-party imports ───────────────────────────
+import pdfplumber                               # PDF text extractor
 from sentence_transformers import SentenceTransformer
 from chromadb import PersistentClient
 from chromadb.config import Settings, DEFAULT_TENANT, DEFAULT_DATABASE
 
-# ───────────────────── user-configurable constants ──────────────────────
-PDF_DIR          = Path("./data")          # Folder containing the PDFs
-EMBED_MODEL_NAME = "all-MiniLM-L6-v2"      # Local or HF Hub model name
-CHROMA_PATH      = Path("./chroma_db")     # Vector DB folder (will be wiped)
-COLLECTION_NAME  = "codebase"              # Logical collection name
+# ╔════════════════════════════════════════════════════════════════╗
+# 1.  Configuration / constants                                    ║
+# ╚════════════════════════════════════════════════════════════════╝
+PDF_DIR          = Path("./data")              # where to look for *.pdf
+EMBED_MODEL_NAME = "all-MiniLM-L6-v2"          # SBERT model on HF Hub
+CHROMA_PATH      = Path("./chroma_db")         # output folder (wiped each run)
+COLLECTION_NAME  = "codebase"                  # logical collection inside DB
 
-# ───────────────────────── regex helper ─────────────────────────────────
-# Splits on any newline while trimming leading/trailing whitespace from
-# each resulting fragment. Empty strings are discarded.
+# ╔════════════════════════════════════════════════════════════════╗
+# 2.  Regex helper: split lines & trim whitespace                  ║
+# ╚════════════════════════════════════════════════════════════════╝
+#   • `\r?\n`  = Windows or Unix newline
+#   • `[^\S\r\n]*` = optional leading/trailing spaces or tabs
 LINE_RE = re.compile(r"[^\S\r\n]*\r?\n[^\S\r\n]*")
 
 def extract_lines(path: Path) -> List[str]:
     """
-    Extract every non-blank line from all pages in a PDF.
-    Returns:
-        List[str]: ordered list of text lines (page order preserved).
+    Read a PDF and return *every* non-blank line, preserving order.
+
+    Parameters
+    ----------
+    path : Path
+        Full path to a .pdf file.
+
+    Returns
+    -------
+    List[str]
+        One entry per non-empty line (page order kept).
     """
     lines: List[str] = []
     with pdfplumber.open(path) as pdf:
         for page in pdf.pages:
-            txt = page.extract_text() or ""
-            for line in LINE_RE.split(txt):
-                cleaned = line.strip()
-                if cleaned:
-                    lines.append(cleaned)
+            text = page.extract_text() or ""
+            for raw_line in LINE_RE.split(text):
+                line = raw_line.strip()
+                if line:                      # skip blanks
+                    lines.append(line)
     return lines
 
 def reset_chroma(db_path: Path) -> None:
     """
-    Delete the existing ChromaDB folder so each run starts from scratch.
+    Delete any existing `db_path` directory so we always start clean.
     """
     if db_path.exists():
         shutil.rmtree(db_path)
     db_path.mkdir(parents=True, exist_ok=True)
 
-# ─────────────────────────── main routine ───────────────────────────────
+# ╔════════════════════════════════════════════════════════════════╗
+# 3.  Main routine                                                 ║
+# ╚════════════════════════════════════════════════════════════════╝
 def index_pdfs() -> None:
     """
-    Index every PDF in PDF_DIR into a fresh ChromaDB collection.
+    Walk `PDF_DIR`, embed every line of every PDF, and store everything
+    into a *new* ChromaDB at `CHROMA_PATH`.
     """
     pdf_files = sorted(PDF_DIR.glob("*.pdf"))
     if not pdf_files:
         print(f"No PDF files found in {PDF_DIR.resolve()}")
         return
 
+    # ── 1. Load embedding model (one-off) ─────────────────────────
     print(f"Embedding model: {EMBED_MODEL_NAME}")
     embed_model = SentenceTransformer(EMBED_MODEL_NAME)
 
-    # 1. Fresh database every run
+    # ── 2. Fresh DB on disk ───────────────────────────────────────
     reset_chroma(CHROMA_PATH)
 
-    # 2. Connect to Chroma (persistent on disk)
+    # ── 3. Connect to persistent Chroma client ────────────────────
     client = PersistentClient(
         path=str(CHROMA_PATH),
-        settings=Settings(),
+        settings=Settings(),                  # defaults are fine
         tenant=DEFAULT_TENANT,
         database=DEFAULT_DATABASE,
     )
     coll = client.get_or_create_collection(COLLECTION_NAME)
 
-    # 3. Walk through each PDF and embed every line
+    # ── 4. Iterate over every PDF ─────────────────────────────────
     for pdf_path in pdf_files:
-        print(f"-> Indexing {pdf_path.name}")
+        print(f"→ Indexing {pdf_path.name}")
         try:
             lines = extract_lines(pdf_path)
-        except Exception as e:
-            print(f"[WARN] Could not read {pdf_path}: {e}")
+        except Exception as err:
+            print(f"[WARN] Could not read {pdf_path}: {err}")
             continue
 
+        # Embed and write each line
         for idx, line in enumerate(lines):
-            # Convert the line into a vector
-            emb = embed_model.encode(line).tolist()
+            vector = embed_model.encode(line).tolist()
 
-            # Store vector + metadata + raw text
             coll.add(
-                ids=[f"{pdf_path}-{idx}"],
-                embeddings=[emb],
-                metadatas=[{"path": str(pdf_path), "chunk_index": idx}],
-                documents=[line],
+                ids        =[f"{pdf_path}-{idx}"],            # unique ID
+                embeddings =[vector],                         # the vector
+                documents  =[line],                           # raw text
+                metadatas  =[{"path": str(pdf_path),
+                              "chunk_index": idx}],           # extra info
             )
 
     print("Indexing complete — new DB stored in ./chroma_db")
 
-# ─────────────────────────── entry point ────────────────────────────────
+# ╔════════════════════════════════════════════════════════════════╗
+# 4.  Script entry-point                                           ║
+# ╚════════════════════════════════════════════════════════════════╝
 if __name__ == "__main__":
     index_pdfs()
