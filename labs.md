@@ -121,7 +121,7 @@ python agent.py
 
 **Purpose: In this lab, we’ll see how MCP can be used to standardize an agent's interaction with tools.**
 
-1. We have partial implementations of an MCP server and an agent that uses a MCP client to connect to tools on the server. So that you can get acquainted with the main parts of each, we'll build them out as we did the agent in the first lab - by viewing differences and merging. Let's start with the server. Run the command below to see the differences.
+1. We have partial implementations of an MCP server and an agent that uses an MCP client to connect to tools on the server. So that you can get acquainted with the main parts of each, we'll build them out as we did the agent in the second lab - by viewing differences and merging. Let's start with the server. Run the command below to see the differences.
 
 ```
 code -d ../extra/lab3-server.txt mcp_server.py
