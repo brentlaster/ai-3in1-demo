@@ -248,7 +248,7 @@ Seaside cities
 Tech Development sites
 High revenue branch
 ```
-<br>
+
 ![PDF search](./images/31ai27.png?raw=true "PDF search")
 
 8. Keep in mind that this is not trying to intelligently answer your prompts at this point. This is a simple semantic search to find related chunks. In lab 5, we'll add in the LLM to give us better responses. In preparation for that lab, make sure that indexing for the PDF is the last one you ran and not the indexing for the Python files.
@@ -271,7 +271,6 @@ High revenue branch
 ```
 code -d extra/lab5-agent.txt rag_agent.py
 ```
-</br></br>
 
 ![Code for rag agent](./images/31ai28.png?raw=true "Code for rag agent") 
 
@@ -306,7 +305,7 @@ Tell me about the Southern office
 ```
 code -d extra/lab5-agent-2.txt rag_agent.py
 ```
-<br>
+
 ![Updating the RAG agent](./images/31ai30.png?raw=true "Updating the RAG agent") 
 
 9. Once you've finished the merge, you can run the new agent code the same way again.
@@ -321,7 +320,7 @@ python agent_rag.py
 Tell me about HQ
 Tell me about the Southern office
 ```
-<br>
+
 ![Running the updated RAG agent](./images/31ai31.png?raw=true "Running the updated RAG agent") 
 
 <p align="center">
