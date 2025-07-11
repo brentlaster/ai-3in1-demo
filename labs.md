@@ -1,7 +1,7 @@
 # AI 3-in-1: Agents, RAG and Local Models
 ## Building out an AI agent that uses RAG and runs locally
 ## Session labs 
-## Revision 2.0 - 07/06/25
+## Revision 2.1 - 07/11/25
 
 **Follow the startup instructions in the README.md file IF NOT ALREADY DONE!**
 
@@ -218,9 +218,7 @@ code tools/search.py
 
 ```
 python tools/search.py
-```
-<br>
-```
+
 convert celsius to farenheit fastmcp tools
 embed model sentence-transformers
 async with Client mcp
@@ -247,6 +245,8 @@ Seaside cities
 Tech Development sites
 High revenue branch
 ```
+
+<br><br>
 
 ![PDF search](./images/31ai27.png?raw=true "PDF search")
 
