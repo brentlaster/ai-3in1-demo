@@ -85,7 +85,32 @@ Tell me about HQ
 Tell me about the Southern office
 ```
 
+## Demo 4 - Agent with RAG
 
+1. Look at rag agent code [rag_agent.py](rag_agent.py]
+
+2. Run rag_agent.py
+
+```
+python rag_agent.py
+```
+
+3. Prompt about HQ, Southern office etc.
+
+```
+Tell me about HQ
+```
+
+4. View rag_agent2 code [rag_agent2.py](rag_agent2.py)
+
+5. Run rag_agent2.py
+
+```
+python rag_agent2.py
+```
+
+6. Prompt about HQ, etc.
+   
 
 
 
