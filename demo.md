@@ -1,5 +1,5 @@
 
-## Demo 1
+## Demo 1 - Running models locally
 
 1. Change dir
 
@@ -42,6 +42,52 @@ curl http://localhost:11434/api/generate -d '{
   "stream": false
 }'
 ```
+
+## Demo 2 - Running an agent
+
+1. View code for [agent.py](./agent.py)
+
+2. Run the agent
+
+```
+python agent.py
+```
+
+3. Put in a location and observe tooling calls
+
+
+## Demo 3 - Vectors
+
+1. View the PDF file  [data/offices.pdf](data/offices.pdf)
+
+2. View the indexing file [tools/index_pdf.py](tools/index_pdf.py)
+
+3. Run the indexer
+
+```
+python index_pdf.py
+```
+
+4. View local chromadb
+
+5. View the search file [tools/search.py](tools/search.py)
+
+6. Run the search
+
+```
+python search.py
+```
+
+7. Prompt about offices
+
+```
+Tell me about HQ
+Tell me about the Southern office
+```
+
+
+
+
 
 
 
